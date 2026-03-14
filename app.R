@@ -3,17 +3,14 @@ library(bslib)
 library(dplyr)
 library(readr)
 library(ggplot2)
-library(lubridate) # New: To extract the hour from starttime
-library(plotly)    # New: To make the plot interactive
+library(lubridate)
+library(plotly)
 
-# 1. Load Data and Extract start_hour
-# Note: Ensure the path matches your actual file structure
+# Load Data and Extract start_hour
 df <- read_csv("data/raw/201306-citibike-tripdata.csv") %>%
-  # Extract the hour from the starttime column.
-  # (If your column is named 'start time' with a space, use `start time` instead)
   mutate(start_hour = hour(ymd_hms(starttime)))
 
-# 2. Define the UI
+# Define the UI
 ui <- page_sidebar(
   title = "Citi Bike Insights",
 
@@ -34,13 +31,12 @@ ui <- page_sidebar(
     ),
     card(
       card_header("Trips by Start Hour"),
-      # Changed from plotOutput to plotlyOutput
       plotlyOutput("hour_histogram")
     )
   )
 )
 
-# 3. Define the Server logic
+# Define the Server logic
 server <- function(input, output, session) {
 
   filtered_df <- reactive({
@@ -63,7 +59,7 @@ server <- function(input, output, session) {
     p <- ggplot(filtered_df(), aes(x = start_hour)) +
       geom_histogram(
         binwidth = 1,
-        fill = "#023047",  # A sleek dark blue matching your previous Python aesthetic
+        fill = "#023047", 
         color = "white",
         alpha = 0.9
       ) +
@@ -78,7 +74,6 @@ server <- function(input, output, session) {
         plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
       )
 
-    # Wrap it in ggplotly to make it interactive!
     ggplotly(p, tooltip = c("x", "count")) %>%
       layout(hovermode = "x unified")
   })
